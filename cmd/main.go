@@ -22,7 +22,7 @@ func main() {
 
 	log.Print("Starting server on :4000")
 
-	err := http.ListenAndServe(":"+utils.SetEnvVars().Port, mux)
+	err := http.ListenAndServe(":"+env.Port, mux)
 	if err != nil {
 		log.Fatal(err)
 	}
