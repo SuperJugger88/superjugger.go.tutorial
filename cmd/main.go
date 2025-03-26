@@ -20,7 +20,7 @@ func main() {
 	mux.HandleFunc("/snippet/view", handlers.GetSnippetByID)
 	mux.HandleFunc("/snippet/create", handlers.CreateSnippet)
 
-	log.Print("Starting server on :4000")
+	log.Printf("Starting server on :%s", env.Port)
 
 	err := http.ListenAndServe(":"+env.Port, mux)
 	if err != nil {
