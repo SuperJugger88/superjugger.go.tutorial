@@ -12,10 +12,25 @@ services:
     build:
       context: .
       target: final
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+          ignore:
+            - .dockerignore
+            - .env.example
+            - .gitignore
+            - README.md
+            - LICENSE
+            - Taskfile.yaml
+            - internal/ui
+        - action: sync+restart
+          path: internal/ui
+          target: /var/www
     env_file:
       - .env
     ports:
-      - 4000:4000
+      - '4000:4000'
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to

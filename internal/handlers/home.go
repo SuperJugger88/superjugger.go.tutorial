@@ -4,21 +4,21 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"os"
+	"superjugger.go.tutorial/internal/utils"
 )
 
-var staticPath = os.Getenv("STATIC_PATH")
-
 func GetHomePage(w http.ResponseWriter, r *http.Request) {
+	env := utils.SetEnvVars()
+
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
 	files := []string{
-		staticPath + "html/base.tmpl",
-		staticPath + "html/pages/home.tmpl",
-		staticPath + "html/partials/nav.tmpl",
+		env.StaticPath + "templates/base.tmpl",
+		env.StaticPath + "templates/pages/home.tmpl",
+		env.StaticPath + "templates/partials/nav.tmpl",
 	}
 
 	ts, err := template.ParseFiles(files...)

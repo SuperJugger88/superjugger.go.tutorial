@@ -31,7 +31,7 @@ ARG TARGETARCH
 # source code into the container.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,target=. \
-    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/server ./cmd/web/
+    CGO_ENABLED=0 GOARCH=$TARGETARCH go build -o /bin/server ./cmd
 
 ################################################################################
 # Create a new stage for running the application that contains the minimal
@@ -58,6 +58,8 @@ RUN --mount=type=cache,target=/var/cache/apk \
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 ARG UID=10001
+ENV TZ=Europe/Moscow
+
 RUN adduser \
     --disabled-password \
     --gecos "" \
@@ -70,7 +72,7 @@ USER appuser
 
 # Copy the executable from the "build" stage and static from host path.
 COPY --from=build /bin/server /bin/
-COPY --chown=appuser:appuser ./ui /var/www
+COPY --chown=appuser:appuser internal/ui /var/www
 
 # Expose the port that the application listens on.
 EXPOSE 4000

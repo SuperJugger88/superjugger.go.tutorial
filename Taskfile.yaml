@@ -3,5 +3,5 @@ version: '3'
 tasks:
   up:
     cmds:
-      - docker compose up --force-recreate --build
+      - COMPOSE_BAKE=true docker compose up --watch
     silent: true

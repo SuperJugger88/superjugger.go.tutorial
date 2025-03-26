@@ -3,19 +3,16 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
-	"superjugger.go.tutorial/cmd/web/handlers"
-)
-
-var (
-	port       = os.Getenv("APP_PORT")
-	staticPath = os.Getenv("STATIC_PATH")
+	"superjugger.go.tutorial/internal/handlers"
+	"superjugger.go.tutorial/internal/utils"
 )
 
 func main() {
+	env := utils.SetEnvVars()
+
 	mux := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir(staticPath + "static/"))
+	fileServer := http.FileServer(http.Dir(env.StaticPath + "static/"))
 
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
@@ -25,7 +22,7 @@ func main() {
 
 	log.Print("Starting server on :4000")
 
-	err := http.ListenAndServe(":"+port, mux)
+	err := http.ListenAndServe(":"+utils.SetEnvVars().Port, mux)
 	if err != nil {
 		log.Fatal(err)
 	}
