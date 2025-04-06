@@ -1,0 +1,68 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  server:
+    build:
+      context: ../..
+      dockerfile: .docker/app/Dockerfile
+      target: final
+    restart: unless-stopped
+    develop:
+      watch:
+        - action: rebuild
+          path: ../..
+          ignore:
+            - .dockerignore
+            - .env.example
+            - .gitignore
+            - README.md
+            - LICENSE
+            - internal/ui
+            - .docker/conf
+        - action: sync+restart
+          path: ../../internal/ui/templates
+          target: /var/www
+    env_file:
+      - ../../.env
+    healthcheck:
+      test: [ "CMD", "curl --fail http://localhost:4000/healthz" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  proxy:
+    build:
+      context: ../..
+      dockerfile: .docker/app/Dockerfile
+      target: proxy
+    restart: unless-stopped
+    develop:
+      watch:
+        - action: sync+restart
+          path: ../../internal/ui/static
+          target: /srv/static
+        - action: sync+restart
+          path: ../conf/Caddyfile
+          target: /etc/caddy/Caddyfile
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+#      - "443:443"
+#      - "443:443/udp"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
+

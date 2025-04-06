@@ -8,7 +8,7 @@
 
 ################################################################################
 # Create a stage for building the application.
-ARG GO_VERSION=1.23
+ARG GO_VERSION=1.24.2
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build
 WORKDIR /src
 
@@ -72,10 +72,17 @@ USER appuser
 
 # Copy the executable from the "build" stage and static from host path.
 COPY --from=build /bin/server /bin/
-COPY --chown=appuser:appuser internal/ui /var/www
+COPY --chown=appuser:appuser internal/ui/templates /var/www/
 
 # Expose the port that the application listens on.
 EXPOSE 4000
 
 # What the container should run when it is started.
 ENTRYPOINT [ "/bin/server" ]
+
+# note: never use the :latest tag in a production site
+FROM caddy:2.9.1-alpine AS proxy
+
+COPY .docker/conf/Caddyfile /etc/caddy/Caddyfile
+COPY internal/ui/static /srv/static
+
