@@ -4,9 +4,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"log"
 	"net/http"
+	env "superjugger.go.tutorial/internal/config"
 	"superjugger.go.tutorial/internal/handlers"
 	healthcheck "superjugger.go.tutorial/internal/utils"
-	env "superjugger.go.tutorial/internal/utils/config"
 	metrics "superjugger.go.tutorial/pkg"
 )
 

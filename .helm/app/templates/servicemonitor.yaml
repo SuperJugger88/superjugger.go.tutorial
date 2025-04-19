@@ -1,0 +1,48 @@
+{{- if .Values.serviceMonitor.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "app.fullname" . }}
+  namespace: {{ .Values.serviceMonitor.namespace | quote }} 
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+    {{- with .Values.serviceMonitor.labels }}
+    {{- tpl (toYaml . | nindent 4) $ }}
+    {{- end }}
+spec:
+  endpoints:
+  - port: {{ .Values.service.portName }}
+    {{- with .Values.serviceMonitor.interval }}
+    interval: {{ . }}
+    {{- end }}
+    {{- with .Values.serviceMonitor.scrapeTimeout }}
+    scrapeTimeout: {{ . }}
+    {{- end }}
+    honorLabels: true
+    path: {{ .Values.serviceMonitor.path }}
+    scheme: {{ .Values.serviceMonitor.scheme }}
+    {{- with .Values.serviceMonitor.tlsConfig }}
+    tlsConfig:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.serviceMonitor.relabelings }}
+    relabelings:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.serviceMonitor.metricRelabelings }}
+    metricRelabelings:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  jobLabel: "{{ default .Release.Name .Values.serviceMonitor.jobLabel }}"
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  namespaceSelector:
+    matchNames:
+      - {{ include "app.namespace" . }}
+  {{- with .Values.serviceMonitor.targetLabels }}
+  targetLabels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}

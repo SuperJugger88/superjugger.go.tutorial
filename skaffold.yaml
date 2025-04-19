@@ -1,0 +1,23 @@
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: stonewall
+build:
+  artifacts:
+    - image: superjugger88/snippet
+      context: .
+      docker:
+        dockerfile: .docker/app.Dockerfile
+  local:
+    useBuildkit: true
+    concurrency: 2
+    push: false
+deploy:
+  helm:
+    releases:
+      - name: snippet
+        chartPath: .helm/app
+        namespace: snippet
+        createNamespace: true
+        valuesFiles:
+          - .helm/app/values.yaml

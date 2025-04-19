@@ -1,0 +1,143 @@
+# Default values for app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## Обязательное поле для заполнения. Имя проекта в пространстве ArgoCD
+projectName: "snippet"
+
+replicaCount: 1
+
+image:
+  repository: superjugger88/snippet
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.0.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 4000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+    # nginx.ingress.kubernetes.io/rewrite-target: /$2
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: localhost
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: {}
+#    - secretName: wildcard-keyauto-tls
+#      hosts:
+#        - <CHANGE ME>.keyauto.ru
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 200m
+  #   memory: 256Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+probe:
+  ## Only one of tcpSocket or httpGet type can be used. If tcpSocket used httpGet not used
+  tcpSocketProbeEnabled: true
+  probeScheme: HTTP
+  livenessProbe:
+    enabled: false
+    initialDelaySeconds: 1
+    periodSeconds: 20
+    failureThreshold: 3
+    timeoutSeconds: 1
+    successThreshold: 1
+    path: "/healthz"
+  readinessProbe:
+    enabled: false
+    initialDelaySeconds: 1
+    periodSeconds: 20
+    failureThreshold: 3
+    timeoutSeconds: 1
+    successThreshold: 1
+    path: "/ready"
+
+serviceMonitor:
+  ## If true, a ServiceMonitor CRD is created for a prometheus operator
+  ## https://github.com/coreos/prometheus-operator
+  ##
+  enabled: false
+  path: "/metrics"
+  #  namespace: monitoring  (defaults to use the namespace this chart is deployed to)
+  #  В namespace указываем namespace kubernetes, в котором размещается ваше приложение
+  namespace: "snippet"
+  labels:
+    release: "prometheus-stack-app"
+  ## Интервал опроса сервиса. Необходимо указывать таким же, как в настройках Prometheus
+  interval: 60s
+  scheme: http
+  tlsConfig: {}
+  scrapeTimeout: 60s
+  relabelings: []
+  jobLabel: ""
+  metricRelabelings: []
+  ## targetLabels указывает, какие метрики добавлять в прометей во время сбора
+  # app.kubernetes.io/name и project-name являются обязательными. Дальше можно добавлять
+  targetLabels:
+    - app.kubernetes.io/name
+    - project-name
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+## ENV переменные приложения
+env:
+  APP_PORT: 4000
+  STATIC_PATH: /var/www/
+  GITLAB_ROOT_EMAIL: admin@example.local
+  GITLAB_ROOT_PASSWORD: rolawast43018460
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+# - name: foo
+#   secret:
+#     secretName: mysecret
+#     optional: false
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
