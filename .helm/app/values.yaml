@@ -11,7 +11,7 @@ image:
   repository: superjugger88/snippet
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.0.0"
+  tag: "test"
 
 imagePullSecrets: []
 nameOverride: ""
